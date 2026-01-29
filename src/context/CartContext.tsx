@@ -1,17 +1,25 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { MenuItem } from '@/data/menuData';
 
-export interface CartItem extends MenuItem {
+export interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
   quantity: number;
+  preparationTime?: number;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (item: MenuItem) => void;
-  removeFromCart: (id: string) => void;
+  addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
+  totalAmount: number;
+  // Legacy compatibility
+  addToCart: (item: any) => void;
+  removeFromCart: (id: string) => void;
   totalPrice: number;
 }
 
@@ -20,7 +28,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  const addToCart = (item: MenuItem) => {
+  const addItem = (item: Omit<CartItem, 'quantity'>) => {
     setItems(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
@@ -32,13 +40,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const removeFromCart = (id: string) => {
+  // Legacy compatibility
+  const addToCart = (item: any) => {
+    addItem({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image: item.image || item.image_url || '',
+      preparationTime: item.preparationTime || item.preparation_time,
+    });
+  };
+
+  const removeItem = (id: string) => {
     setItems(prev => prev.filter(i => i.id !== id));
   };
 
+  const removeFromCart = removeItem;
+
   const updateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(id);
+      removeItem(id);
       return;
     }
     setItems(prev => prev.map(i => 
@@ -49,17 +70,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => setItems([]);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <CartContext.Provider value={{
       items,
+      addItem,
+      removeItem,
       addToCart,
       removeFromCart,
       updateQuantity,
       clearCart,
       totalItems,
-      totalPrice,
+      totalAmount,
+      totalPrice: totalAmount,
     }}>
       {children}
     </CartContext.Provider>

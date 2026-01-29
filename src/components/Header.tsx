@@ -1,22 +1,26 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShoppingCart, Sun, Moon } from 'lucide-react';
+import { Menu, X, ShoppingCart, Sun, Moon, User, LogIn } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import logo from '@/assets/logo.png';
+import { Button } from '@/components/ui/button';
 
 const navLinks = [
   { name: 'Home', path: '/' },
   { name: 'Menu', path: '/menu' },
-  { name: 'About', path: '/about' },
-  { name: 'Contact', path: '/contact' },
+  { name: 'Reservations', path: '/reservations' },
+  { name: 'Reviews', path: '/reviews' },
+  { name: 'FAQ', path: '/faq' },
 ];
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { totalItems } = useCart();
+  const { user, isAdmin } = useAuth();
   const location = useLocation();
 
   return (
@@ -39,7 +43,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -62,7 +66,7 @@ export default function Header() {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             {/* Theme Toggle */}
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -101,14 +105,14 @@ export default function Header() {
               <motion.div
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="relative p-2 rounded-full bg-primary text-primary-foreground"
+                className="relative p-2 rounded-full bg-secondary hover:bg-secondary/80 transition-colors"
               >
                 <ShoppingCart className="w-5 h-5" />
                 {totalItems > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-accent-foreground text-xs font-bold rounded-full flex items-center justify-center"
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center"
                   >
                     {totalItems}
                   </motion.span>
@@ -116,11 +120,30 @@ export default function Header() {
               </motion.div>
             </Link>
 
+            {/* Auth Button */}
+            <div className="hidden md:block">
+              {user ? (
+                <Link to={isAdmin ? '/admin' : '/dashboard'}>
+                  <Button variant="default" size="sm">
+                    <User className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <Link to="/login">
+                  <Button variant="default" size="sm">
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Login
+                  </Button>
+                </Link>
+              )}
+            </div>
+
             {/* Mobile Menu Button */}
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-2 rounded-lg bg-secondary"
+              className="lg:hidden p-2 rounded-lg bg-secondary"
               aria-label="Toggle menu"
             >
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -135,7 +158,7 @@ export default function Header() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden overflow-hidden"
+              className="lg:hidden overflow-hidden"
             >
               <div className="py-4 space-y-2">
                 {navLinks.map((link, index) => (
@@ -158,6 +181,31 @@ export default function Header() {
                     </Link>
                   </motion.div>
                 ))}
+                
+                {/* Mobile Auth Link */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: navLinks.length * 0.1 }}
+                >
+                  {user ? (
+                    <Link
+                      to={isAdmin ? '/admin' : '/dashboard'}
+                      onClick={() => setIsOpen(false)}
+                      className="block py-2 px-4 rounded-lg bg-primary text-primary-foreground"
+                    >
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/login"
+                      onClick={() => setIsOpen(false)}
+                      className="block py-2 px-4 rounded-lg bg-primary text-primary-foreground"
+                    >
+                      Login
+                    </Link>
+                  )}
+                </motion.div>
               </div>
             </motion.div>
           )}
