@@ -43,14 +43,15 @@ export default function Index() {
               muted
               playsInline
               className="w-full h-full object-cover"
+              poster="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&h=1080&fit=crop"
             >
               <source
-                src="https://videos.pexels.com/video-files/3297379/3297379-uhd_2560_1440_30fps.mp4"
+                src="https://cdn.pixabay.com/video/2020/07/30/45349-446234046_large.mp4"
                 type="video/mp4"
               />
             </video>
             {/* Dark Overlay */}
-            <div className="absolute inset-0 bg-black/60" />
+            <div className="absolute inset-0 bg-black/50" />
           </div>
 
           <div className="container-custom relative z-10 text-center">
