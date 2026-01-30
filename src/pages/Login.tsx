@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Info } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -112,6 +112,39 @@ export default function Login() {
                   )}
                 </Button>
               </form>
+
+              {/* Demo Credentials Box */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="mt-6 p-4 rounded-xl bg-primary/5 border border-primary/20"
+              >
+                <div className="flex items-start gap-3">
+                  <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground mb-2">
+                      Demo Credentials (Testing Only)
+                    </p>
+                    <div className="text-sm text-muted-foreground space-y-1">
+                      <p><span className="font-medium">Email:</span> admin@restaurant.com</p>
+                      <p><span className="font-medium">Password:</span> admin123</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={() => {
+                        setEmail('admin@restaurant.com');
+                        setPassword('admin123');
+                      }}
+                    >
+                      Auto-fill Demo Credentials
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
 
               <div className="mt-6 text-center">
                 <p className="text-muted-foreground">
