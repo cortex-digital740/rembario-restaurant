@@ -59,37 +59,97 @@ export default function Index() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="max-w-3xl mx-auto"
+              className="max-w-4xl mx-auto"
             >
+              {/* Premium Tagline */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="inline-flex items-center gap-2 mb-6"
+              >
+                <div className="w-8 h-0.5 bg-gradient-to-r from-transparent to-amber-400" />
+                <span className="text-amber-400 font-medium text-sm md:text-base tracking-widest uppercase">
+                  Fine Dining Experience
+                </span>
+                <div className="w-8 h-0.5 bg-gradient-to-l from-transparent to-amber-400" />
+              </motion.div>
+
+              {/* Main Heading */}
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 text-white"
+                transition={{ delay: 0.25 }}
+                className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-tight mb-4 text-white"
               >
                 Rimberio
               </motion.h1>
 
+              {/* Subheading */}
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="text-xl md:text-2xl text-white/80 mb-10 leading-relaxed"
+                transition={{ delay: 0.4 }}
+                className="text-xl md:text-2xl text-white/90 mb-4 leading-relaxed font-light"
               >
                 Experience Culinary Excellence
               </motion.p>
 
+              {/* Premium Tagline */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55 }}
+                className="text-lg md:text-xl text-white/75 mb-10 leading-relaxed max-w-2xl mx-auto font-light"
+              >
+                Indulge in rich, complex flavors crafted by our award-winning culinary team.
+                <span className="block mt-2 text-amber-400/80">
+                  Every dish is a journey through tradition, innovation, and passion.
+                </span>
+              </motion.p>
+
+              {/* CTA Buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
+                className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center"
               >
-                <Link to="/reservations">
-                  <Button size="lg" className="text-lg px-10 py-6 rounded-full">
-                    <Calendar className="w-5 h-5 mr-2" />
-                    Reserve Table
-                  </Button>
+                {/* View Menu Button */}
+                <Link to="/menu" className="w-full sm:w-auto">
+                  <motion.button
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-lg px-10 py-4 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl"
+                  >
+                    <ChefHat className="w-5 h-5" />
+                    View Menu
+                  </motion.button>
                 </Link>
+
+                {/* Book a Table Button */}
+                <Link to="/reservations" className="w-full sm:w-auto">
+                  <motion.button
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold text-lg px-10 py-4 rounded-full border border-white/30 backdrop-blur-sm transition-all duration-300 hover:border-white/50"
+                  >
+                    <Calendar className="w-5 h-5" />
+                    Book a Table
+                  </motion.button>
+                </Link>
+              </motion.div>
+
+              {/* Decorative Element */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+                className="mt-12 flex justify-center gap-2"
+              >
+                <div className="w-2 h-2 rounded-full bg-amber-400/60" />
+                <div className="w-2 h-2 rounded-full bg-amber-400/40" />
+                <div className="w-2 h-2 rounded-full bg-amber-400/20" />
               </motion.div>
             </motion.div>
           </div>
