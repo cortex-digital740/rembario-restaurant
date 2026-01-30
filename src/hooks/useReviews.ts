@@ -48,7 +48,7 @@ export function useReviews(onlyApproved = true) {
 
       // Create a map of user_id -> profile
       const profileMap = new Map(
-        profiles?.map(p => [p.user_id, { full_name: p.full_name }]) || []
+        profiles?.map(p => [p.user_id, { full_name: p.full_name, avatar_url: p.avatar_url }]) || []
       );
 
       // Map reviews with their profiles
