@@ -4,30 +4,58 @@ import { useAuth } from '@/context/AuthContext';
 import type { Database } from '@/integrations/supabase/types';
 
 type Review = Database['public']['Tables']['reviews']['Row'];
-type ReviewInsert = Database['public']['Tables']['reviews']['Insert'];
+
+export type ReviewWithProfile = Review & {
+  profiles?: { full_name: string } | null;
+};
 
 export function useReviews(onlyApproved = true) {
   return useQuery({
     queryKey: ['reviews', onlyApproved],
-    queryFn: async () => {
+    queryFn: async (): Promise<ReviewWithProfile[]> => {
+      // Fetch reviews first
       let query = supabase
         .from('reviews')
-        .select(`
-          *,
-          profiles (
-            full_name
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
       
       if (onlyApproved) {
         query = query.eq('status', 'approved');
       }
       
-      const { data, error } = await query;
+      const { data: reviews, error: reviewsError } = await query;
       
-      if (error) throw error;
-      return data;
+      if (reviewsError) throw reviewsError;
+      if (!reviews || reviews.length === 0) return [];
+
+      // Get unique user IDs from reviews
+      const userIds = [...new Set(reviews.map(r => r.user_id))];
+      
+      // Fetch profiles for those users
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .in('user_id', userIds);
+
+      if (profilesError) {
+        console.warn('Could not fetch profiles:', profilesError);
+        // Return reviews without profile data
+        return reviews.map(review => ({
+          ...review,
+          profiles: null,
+        }));
+      }
+
+      // Create a map of user_id -> profile
+      const profileMap = new Map(
+        profiles?.map(p => [p.user_id, { full_name: p.full_name }]) || []
+      );
+
+      // Map reviews with their profiles
+      return reviews.map(review => ({
+        ...review,
+        profiles: profileMap.get(review.user_id) || null,
+      }));
     },
   });
 }
