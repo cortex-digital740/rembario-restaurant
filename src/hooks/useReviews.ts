@@ -6,7 +6,7 @@ import type { Database } from '@/integrations/supabase/types';
 type Review = Database['public']['Tables']['reviews']['Row'];
 
 export type ReviewWithProfile = Review & {
-  profiles?: { full_name: string } | null;
+  profiles?: { full_name: string; avatar_url?: string | null } | null;
 };
 
 export function useReviews(onlyApproved = true) {
