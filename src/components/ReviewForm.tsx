@@ -1,19 +1,53 @@
-import { useState } from 'react';
-import { Star, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Star, Loader2, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCreateReview } from '@/hooks/useReviews';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function ReviewForm() {
+  const [name, setName] = useState('');
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState('');
-  
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+
+  const { user } = useAuth();
   const createReview = useCreateReview();
   const { toast } = useToast();
+
+  // Load user's profile name
+  useEffect(() => {
+    if (user) {
+      const fetchProfile = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('user_id', user.id)
+            .single();
+
+          if (error) throw error;
+          if (data?.full_name) {
+            setName(data.full_name);
+          }
+        } catch (error) {
+          console.error('Error fetching profile:', error);
+          setName('');
+        } finally {
+          setIsLoadingProfile(false);
+        }
+      };
+
+      fetchProfile();
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
