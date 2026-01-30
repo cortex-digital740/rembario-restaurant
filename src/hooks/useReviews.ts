@@ -34,7 +34,7 @@ export function useReviews(onlyApproved = true) {
       // Fetch profiles for those users
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, full_name')
+        .select('user_id, full_name, avatar_url')
         .in('user_id', userIds);
 
       if (profilesError) {
