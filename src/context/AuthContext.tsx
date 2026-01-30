@@ -31,9 +31,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .select('role')
         .eq('user_id', userId)
         .single();
-      
-      if (error) throw error;
-      setUserRole(data?.role || 'user');
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        // Default to 'user' role if not found
+        setUserRole('user');
+        return;
+      }
+
+      if (data && data.role) {
+        setUserRole(data.role);
+      } else {
+        console.warn('No role data returned for user:', userId);
+        setUserRole('user');
+      }
     } catch (error) {
       console.error('Error fetching user role:', error);
       setUserRole('user');
