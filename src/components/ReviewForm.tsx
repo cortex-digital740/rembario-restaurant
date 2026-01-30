@@ -52,6 +52,15 @@ export default function ReviewForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!name.trim()) {
+      toast({
+        title: 'Name required',
+        description: 'Please enter your name before submitting.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (rating === 0) {
       toast({
         title: 'Rating required',
@@ -61,7 +70,25 @@ export default function ReviewForm() {
       return;
     }
 
+    if (!comment.trim()) {
+      toast({
+        title: 'Review required',
+        description: 'Please share your feedback before submitting.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
+      // Update user's profile with the name if it changed
+      if (user && name) {
+        await supabase
+          .from('profiles')
+          .update({ full_name: name })
+          .eq('user_id', user.id);
+      }
+
+      // Submit the review
       await createReview.mutateAsync({ rating, comment });
       toast({
         title: 'Review submitted!',
