@@ -108,10 +108,37 @@ export default function ReviewForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Leave a Review</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Star className="w-5 h-5 text-yellow-400" />
+          Leave a Review
+        </CardTitle>
+        <p className="text-sm text-muted-foreground mt-2">
+          Share your dining experience with us and other guests
+        </p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Your Name */}
+          <div>
+            <Label htmlFor="reviewer-name" className="flex items-center gap-2 mb-2">
+              <User className="w-4 h-4" />
+              Your Name
+            </Label>
+            <Input
+              id="reviewer-name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your full name"
+              disabled={isLoadingProfile}
+              required
+              className="text-foreground"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              This name will be displayed with your review
+            </p>
+          </div>
+
           {/* Star Rating */}
           <div>
             <p className="text-sm font-medium mb-2">Your Rating</p>
