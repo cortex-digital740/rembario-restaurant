@@ -6,7 +6,7 @@ import type { Database } from '@/integrations/supabase/types';
 type Review = Database['public']['Tables']['reviews']['Row'];
 
 export type ReviewWithProfile = Review & {
-  profiles?: { full_name: string } | null;
+  profiles?: { full_name: string; avatar_url?: string | null } | null;
 };
 
 export function useReviews(onlyApproved = true) {
@@ -34,7 +34,7 @@ export function useReviews(onlyApproved = true) {
       // Fetch profiles for those users
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, full_name')
+        .select('user_id, full_name, avatar_url')
         .in('user_id', userIds);
 
       if (profilesError) {
@@ -48,7 +48,7 @@ export function useReviews(onlyApproved = true) {
 
       // Create a map of user_id -> profile
       const profileMap = new Map(
-        profiles?.map(p => [p.user_id, { full_name: p.full_name }]) || []
+        profiles?.map(p => [p.user_id, { full_name: p.full_name, avatar_url: p.avatar_url }]) || []
       );
 
       // Map reviews with their profiles

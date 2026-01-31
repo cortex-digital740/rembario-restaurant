@@ -31,9 +31,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .select('role')
         .eq('user_id', userId)
         .single();
-      
-      if (error) throw error;
-      setUserRole(data?.role || 'user');
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        // Default to 'user' role if not found
+        setUserRole('user');
+        return;
+      }
+
+      if (data && data.role) {
+        setUserRole(data.role);
+      } else {
+        console.warn('No role data returned for user:', userId);
+        setUserRole('user');
+      }
     } catch (error) {
       console.error('Error fetching user role:', error);
       setUserRole('user');
@@ -41,36 +52,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     // Set up auth state change listener BEFORE checking session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!isMounted) return;
+
         setSession(session);
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
-          // Defer role fetching to avoid blocking
-          setTimeout(() => fetchUserRole(session.user.id), 0);
+          await fetchUserRole(session.user.id);
         } else {
           setUserRole(null);
         }
-        
+
         setIsLoading(false);
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return;
+
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
         fetchUserRole(session.user.id);
+      } else {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {

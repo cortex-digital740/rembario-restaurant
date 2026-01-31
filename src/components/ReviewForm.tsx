@@ -1,22 +1,65 @@
-import { useState } from 'react';
-import { Star, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Star, Loader2, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCreateReview } from '@/hooks/useReviews';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function ReviewForm() {
+  const [name, setName] = useState('');
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState('');
-  
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+
+  const { user } = useAuth();
   const createReview = useCreateReview();
   const { toast } = useToast();
 
+  // Load user's profile name
+  useEffect(() => {
+    if (user) {
+      const fetchProfile = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('user_id', user.id)
+            .single();
+
+          if (error) throw error;
+          if (data?.full_name) {
+            setName(data.full_name);
+          }
+        } catch (error) {
+          console.error('Error fetching profile:', error);
+          setName('');
+        } finally {
+          setIsLoadingProfile(false);
+        }
+      };
+
+      fetchProfile();
+    }
+  }, [user]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!name.trim()) {
+      toast({
+        title: 'Name required',
+        description: 'Please enter your name before submitting.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     if (rating === 0) {
       toast({
@@ -27,7 +70,25 @@ export default function ReviewForm() {
       return;
     }
 
+    if (!comment.trim()) {
+      toast({
+        title: 'Review required',
+        description: 'Please share your feedback before submitting.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
+      // Update user's profile with the name if it changed
+      if (user && name) {
+        await supabase
+          .from('profiles')
+          .update({ full_name: name })
+          .eq('user_id', user.id);
+      }
+
+      // Submit the review
       await createReview.mutateAsync({ rating, comment });
       toast({
         title: 'Review submitted!',
@@ -47,10 +108,37 @@ export default function ReviewForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Leave a Review</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Star className="w-5 h-5 text-yellow-400" />
+          Leave a Review
+        </CardTitle>
+        <p className="text-sm text-muted-foreground mt-2">
+          Share your dining experience with us and other guests
+        </p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Your Name */}
+          <div>
+            <Label htmlFor="reviewer-name" className="flex items-center gap-2 mb-2">
+              <User className="w-4 h-4" />
+              Your Name
+            </Label>
+            <Input
+              id="reviewer-name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your full name"
+              disabled={isLoadingProfile}
+              required
+              className="text-foreground"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              This name will be displayed with your review
+            </p>
+          </div>
+
           {/* Star Rating */}
           <div>
             <p className="text-sm font-medium mb-2">Your Rating</p>
